@@ -1,0 +1,16 @@
+
+# Enable singleplayer world delete
+one_death_delete_singleplayer_world (Enable/disable deleting singleplayer world on player's death) bool true
+
+# Enable multiplayer world delete
+# Take effect on first death on server
+one_death_delete_multiplayer_world (Enable/disable deleting multiplayer world on player's death) bool false
+
+# Grant fly privilege after player's death
+one_death_fly_after_death (Grant fly privilege after player's death) bool true
+
+# Grant fast privilege after player's death
+one_death_fast_after_death (Grant fast privilege after player's death) bool true
+
+# Grant teleport privilege after player's death
+one_death_teleport_after_death (Grant teleport privilege after player's death) bool true
