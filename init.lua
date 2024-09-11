@@ -20,7 +20,7 @@ local storage = minetest.get_mod_storage()
 if one_death.delete_world then
 	minetest.register_on_joinplayer(function(player)
 			local name = player:get_player_name()
-			local colored_message = minetest.colorize("red", S("!!!This WORLD will be REMOVED if you DIE!!!"))
+			local colored_message = minetest.colorize("red", S("!!!This WORLD will be DESTROYED if you DIE!!!"))
     	minetest.chat_send_all(colored_message)
 	 end)
 end
@@ -87,9 +87,20 @@ local function remove_world_files()
 	erase_file("/mod_storage.sqlite")
 	new_seed_map()
 	os.remove(path.."/force_loaded.txt")
+	os.remove(path.."/beds_spawns")
 end
 
-minetest.register_on_joinplayer(function(player)
+if one_death.delete_world then
+	if storage:get_int("|DELETE_WORLD|") == 1 then
+		local path = minetest.get_worldpath()
+		storage:set_int("|DELETE_WORLD|", 0)
+		erase_file("/map.sqlite")
+		erase_file("/players.sqlite")
+		erase_file("/mod_storage.sqlite")
+		os.remove(path.."/beds_spawns")
+	end
+else
+	minetest.register_on_joinplayer(function(player)
 		local name = player:get_player_name()
 		if storage:get_int(name) > 0 then
 			minetest.change_player_privs(name, {interact = false, shout = false})
@@ -98,6 +109,7 @@ minetest.register_on_joinplayer(function(player)
 			end
 		end
 	end)
+end
 
 
 minetest.register_on_dieplayer(function(player)
@@ -105,7 +117,9 @@ minetest.register_on_dieplayer(function(player)
 		if one_death.delete_world then
 			remove_world_files()
 			minetest.register_on_shutdown(remove_world_files)
-			minetest.request_shutdown(S("Player @1 died.", name), false, 0)
+			minetest.set_timeofday(0.20)
+			storage:set_int("|DELETE_WORLD|", 1)
+			minetest.request_shutdown(S("Player @1 died.", name), false, 0.5)
 		else
 			minetest.change_player_privs(name, {interact = false, shout = false})
 			minetest.change_player_privs(name, {peaceful_player = true, })
